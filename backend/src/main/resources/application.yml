@@ -14,9 +14,6 @@ spring:
         default_batch_fetch_size: 16
   flyway:
     enabled: true
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
   threads:
     virtual:
       enabled: true
