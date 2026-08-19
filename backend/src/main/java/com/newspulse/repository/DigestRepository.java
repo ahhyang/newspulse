@@ -8,12 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DigestRepository extends JpaRepository<Digest, Long> {
 
-	@EntityGraph(attributePaths = {"items", "topic"})
+	@EntityGraph(attributePaths = {"items", "items.cluster", "topic"})
 	Optional<Digest> findByTopicIdAndDigestDate(Long topicId, LocalDate digestDate);
 
-	@EntityGraph(attributePaths = {"items", "topic"})
+	@EntityGraph(attributePaths = {"items", "items.cluster", "topic"})
 	Optional<Digest> findFirstByOrderByDigestDateDescGeneratedAtDesc();
 
-	@EntityGraph(attributePaths = {"items", "topic"})
+	@EntityGraph(attributePaths = {"items", "items.cluster", "topic"})
 	Optional<Digest> findFirstByTopicIdOrderByDigestDateDescGeneratedAtDesc(Long topicId);
 }

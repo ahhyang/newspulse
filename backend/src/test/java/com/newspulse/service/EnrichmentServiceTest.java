@@ -46,6 +46,9 @@ class EnrichmentServiceTest {
 	@Mock
 	private ObjectProvider<LlmClient> llmClientProvider;
 
+	@Mock
+	private DigestService digestService;
+
 	private EnrichmentService enrichmentService;
 
 	@BeforeEach
@@ -55,6 +58,7 @@ class EnrichmentServiceTest {
 				articleRepository,
 				enrichmentRepository,
 				llmClientProvider,
+				digestService,
 				AppPropertiesFixture.defaults(),
 				noopTransactionManager()
 		);
@@ -77,6 +81,7 @@ class EnrichmentServiceTest {
 		assertThat(result.enriched()).isEqualTo(1);
 		assertThat(result.failures()).isZero();
 		verify(enrichmentRepository).saveAndFlush(any(ArticleEnrichment.class));
+		verify(digestService).generateForTodayAsync();
 	}
 
 	@Test
@@ -114,6 +119,7 @@ class EnrichmentServiceTest {
 		assertThat(result.enriched()).isZero();
 		assertThat(result.skipped()).isEqualTo(1);
 		verify(enrichmentRepository, never()).saveAndFlush(any(ArticleEnrichment.class));
+		verify(digestService, never()).generateForTodayAsync();
 	}
 
 	private static Article article(long id, String title) {

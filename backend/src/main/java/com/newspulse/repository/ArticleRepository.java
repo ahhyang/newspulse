@@ -34,4 +34,18 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpec
 
 	@EntityGraph(attributePaths = {"enrichment", "topic", "cluster"})
 	Optional<Article> findWithDetailsById(Long id);
+
+	@EntityGraph(attributePaths = {"enrichment", "topic", "cluster"})
+	List<Article> findByTopicIdAndClusterIsNull(Long topicId);
+
+	@EntityGraph(attributePaths = {"enrichment", "topic", "cluster"})
+	List<Article> findByTopicIdAndPublishedAtGreaterThanEqualAndPublishedAtLessThan(
+			Long topicId,
+			Instant from,
+			Instant to
+	);
+
+	@EntityGraph(attributePaths = {"enrichment", "topic"})
+	List<Article> findByPublishedAtGreaterThanEqualAndPublishedAtLessThan(Instant from, Instant to);
+
 }

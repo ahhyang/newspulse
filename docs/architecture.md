@@ -45,6 +45,9 @@ flowchart LR
 - `domain` — JPA entities, never returned from controllers
 - `ingestion.NewsSource` — one class per news provider
 - `llm.LlmClient` — one class per LLM provider (OpenRouter default)
+- `clustering` — title Jaccard + content-hash union-find so a digest item can say “N sources covered this”
+
+Digest window is the UTC calendar day. Only **enriched** articles are included. Near-duplicate headlines are grouped before ranking (distinct `sourceName`, then recency). Template headline/overview for now; an LLM compose step can sit behind the same `DigestService` later.
 
 Flyway owns schema. `spring.jpa.hibernate.ddl-auto=validate` in every profile.
 

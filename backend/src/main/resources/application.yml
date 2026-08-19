@@ -62,6 +62,11 @@ app:
     interval-ms: ${ENRICHMENT_INTERVAL_MS:120000}
     initial-delay-ms: ${ENRICHMENT_INITIAL_DELAY_MS:40000}
     batch-size: ${ENRICHMENT_BATCH_SIZE:8}
+  digest:
+    enabled: ${DIGEST_ENABLED:true}
+    cron: ${DIGEST_CRON:0 5 0 * * *}
+    max-items: ${DIGEST_MAX_ITEMS:10}
+    cluster-similarity: ${DIGEST_CLUSTER_SIMILARITY:0.45}
   llm:
     enabled: ${LLM_ENABLED:true}
     provider: openrouter

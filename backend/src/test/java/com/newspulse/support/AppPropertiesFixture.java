@@ -17,6 +17,7 @@ public final class AppPropertiesFixture {
 				new AppProperties.Cors("http://localhost:5173"),
 				new AppProperties.Ingestion(false, 3600000, 20000, 24),
 				new AppProperties.Enrichment(true, 120000, 40000, 8),
+				new AppProperties.Digest(true, "0 5 0 * * *", 10, 0.45),
 				new AppProperties.Llm(
 						true,
 						"openrouter",

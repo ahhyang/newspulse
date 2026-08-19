@@ -30,6 +30,7 @@ public class EnrichmentService {
 	private final ArticleRepository articleRepository;
 	private final ArticleEnrichmentRepository enrichmentRepository;
 	private final LlmClient llmClient;
+	private final DigestService digestService;
 	private final AppProperties appProperties;
 	private final TransactionTemplate transactionTemplate;
 	private final AtomicBoolean running = new AtomicBoolean(false);
@@ -38,12 +39,14 @@ public class EnrichmentService {
 			ArticleRepository articleRepository,
 			ArticleEnrichmentRepository enrichmentRepository,
 			ObjectProvider<LlmClient> llmClient,
+			DigestService digestService,
 			AppProperties appProperties,
 			PlatformTransactionManager transactionManager
 	) {
 		this.articleRepository = articleRepository;
 		this.enrichmentRepository = enrichmentRepository;
 		this.llmClient = llmClient.getIfAvailable();
+		this.digestService = digestService;
 		this.appProperties = appProperties;
 		this.transactionTemplate = new TransactionTemplate(transactionManager);
 	}
@@ -101,7 +104,11 @@ public class EnrichmentService {
 					log.debug("Enrichment stacktrace", ex);
 				}
 			}
-			return new EnrichmentRunResponse(startedAt, Instant.now(), scanned, enriched, skipped, failures);
+			EnrichmentRunResponse response = new EnrichmentRunResponse(startedAt, Instant.now(), scanned, enriched, skipped, failures);
+			if (enriched > 0) {
+				digestService.generateForTodayAsync();
+			}
+			return response;
 		} finally {
 			running.set(false);
 		}

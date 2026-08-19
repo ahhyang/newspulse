@@ -9,6 +9,7 @@ public record AppProperties(
 		Cors cors,
 		Ingestion ingestion,
 		Enrichment enrichment,
+		Digest digest,
 		Llm llm,
 		Gnews gnews
 ) {
@@ -21,6 +22,8 @@ public record AppProperties(
 	public record Ingestion(boolean enabled, long intervalMs, long initialDelayMs, int lookbackHours) {}
 
 	public record Enrichment(boolean enabled, long intervalMs, long initialDelayMs, int batchSize) {}
+
+	public record Digest(boolean enabled, String cron, int maxItems, double clusterSimilarity) {}
 
 	public record Llm(
 			boolean enabled,

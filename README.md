@@ -10,7 +10,7 @@ AI-native news aggregation and sentiment briefing platform. Java / Spring Boot A
 
 NewsPulse pulls articles about a tracked topic (default: **AI industry**), stores them, enriches them with an LLM (summary, sentiment, stance), clusters near-duplicate coverage, and produces a daily digest.
 
-> **Status:** Phase 3 — GNews ingestion + OpenRouter enrichment (summary, sentiment, stance). Digest generation and the React UI are next.
+> **Status:** Phase 4 — daily digest + title clustering + sentiment stats. React dashboard is next.
 
 ## Architecture
 
@@ -47,10 +47,11 @@ More detail: [docs/architecture.md](docs/architecture.md)
 | `POST` | `/api/topics` | JWT admin |
 | `POST` | `/api/ingestion/runs` | JWT admin |
 | `POST` | `/api/enrichment/runs` | JWT admin |
+| `POST` | `/api/digests/runs` | JWT admin |
 | `GET` | `/api/articles` | public, filterable |
-| `GET` | `/api/digests/latest` | public (404 until Phase 4) |
-| `GET` | `/api/digests/{date}` | public (404 until Phase 4) |
-| `GET` | `/api/stats` | public |
+| `GET` | `/api/digests/latest` | public |
+| `GET` | `/api/digests/{date}` | public, optional `topicId` |
+| `GET` | `/api/stats` | public, optional `topicId`/`from`/`to` |
 | `GET` | `/swagger-ui.html` | public |
 
 Error body is consistent (`status`, `error`, `message`, `path`, `details`). See [docs/api.md](docs/api.md).
@@ -75,6 +76,16 @@ Login (values from your `.env`):
 curl -s http://localhost:8080/api/auth/login ^
   -H "Content-Type: application/json" ^
   -d "{\"username\":\"admin\",\"password\":\"YOUR_PASSWORD\"}"
+```
+
+After login, you can run the pipeline on demand:
+
+```bash
+curl -s -X POST http://localhost:8080/api/ingestion/runs -H "Authorization: Bearer TOKEN"
+curl -s -X POST http://localhost:8080/api/enrichment/runs -H "Authorization: Bearer TOKEN"
+curl -s -X POST http://localhost:8080/api/digests/runs -H "Authorization: Bearer TOKEN"
+curl -s http://localhost:8080/api/digests/latest
+curl -s http://localhost:8080/api/stats
 ```
 
 Run tests (Docker required for Testcontainers):

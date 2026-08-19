@@ -9,9 +9,9 @@ Interactive docs: [http://localhost:8080/swagger-ui.html](http://localhost:8080/
 | POST | `/api/auth/login` | `{ "username", "password" }` → JWT |
 | GET | `/api/topics` | Seeded with **AI Industry** |
 | GET | `/api/articles` | Filters: `topicId`, `source`, `sentiment`, `from`, `to`, paging |
-| GET | `/api/digests/latest` | 404 until digest generation ships |
-| GET | `/api/digests/{date}` | Requires `topicId` |
-| GET | `/api/stats` | Sentiment series (empty until enrichment) |
+| GET | `/api/digests/latest` | Most recent digest. Optional `topicId` (defaults to first active topic for date lookup on `/{date}`) |
+| GET | `/api/digests/{date}` | ISO date in UTC. Optional `topicId` |
+| GET | `/api/stats` | Daily sentiment series. Optional `topicId`, `from`, `to` (default: last 7 UTC days through today) |
 | GET | `/actuator/health` | Liveness/readiness |
 
 Admin ingest: `POST /api/ingestion/runs` with a Bearer JWT. The scheduler also runs on `app.ingestion.interval-ms` (default 1 hour) and never crashes the process on GNews errors.
@@ -24,6 +24,7 @@ Admin ingest: `POST /api/ingestion/runs` with a Bearer JWT. The scheduler also r
 | PATCH | `/api/topics/{id}` | Update a topic |
 | POST | `/api/ingestion/runs` | Pull GNews now |
 | POST | `/api/enrichment/runs` | Summarize + classify unenriched articles |
+| POST | `/api/digests/runs` | Generate/regenerate digests for a UTC date (`date`, optional `topicId`) |
 
 Errors use a single envelope:
 
