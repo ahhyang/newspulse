@@ -12,3 +12,4 @@ All notable changes to NewsPulse are documented here.
 - Phase 5 React dashboard: Vite + TypeScript + Tailwind, digest/articles/admin views, Recharts sentiment trend.
 - Phase 6 Docker Compose: nginx frontend image, API healthcheck, single `docker compose up --build` for db + api + UI.
 - Phase 7 polish: README screenshots and inlined AI-workflow notes, CI frontend job, editorconfig.
+- Flyway V3: store article hashes as VARCHAR so Hibernate `ddl-auto=validate` matches Postgres.
