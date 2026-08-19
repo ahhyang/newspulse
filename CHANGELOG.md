@@ -11,3 +11,4 @@ All notable changes to NewsPulse are documented here.
 - Phase 4 digest generation: Jaccard title clustering, daily UTC digest (scheduler + `POST /api/digests/runs`), real `GET /api/stats` sentiment series.
 - Phase 5 React dashboard: Vite + TypeScript + Tailwind, digest/articles/admin views, Recharts sentiment trend.
 - Phase 6 Docker Compose: nginx frontend image, API healthcheck, single `docker compose up --build` for db + api + UI.
+- Phase 7 polish: README screenshots and inlined AI-workflow notes, CI frontend job, editorconfig.

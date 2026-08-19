@@ -10,16 +10,32 @@ AI-native news aggregation and sentiment briefing platform. Java / Spring Boot A
 
 NewsPulse pulls articles about a tracked topic (default: **AI industry**), stores them, enriches them with an LLM (summary, sentiment, stance), clusters near-duplicate coverage, and produces a daily digest.
 
-> **Status:** Phase 6 — `docker compose up --build` runs Postgres, the API, and the dashboard. README/CI polish is next.
+> **Status:** Complete through Phase 7 — Compose stack, dashboard, tests, and docs. Redis/queue/email stay documented as future work.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  Dashboard[React dashboard / Vercel] --> API[Spring Boot API]
+  Dashboard[React dashboard] --> Nginx[nginx / Vite]
+  Nginx --> API[Spring Boot API]
   API --> PG[(PostgreSQL / Neon)]
   API --> GNews[GNews]
   API --> OpenRouter[OpenRouter / Claude]
+```
+
+```mermaid
+sequenceDiagram
+  participant Sched as Scheduler
+  participant Ingest as NewsSource
+  participant DB as Postgres
+  participant LLM as LlmClient
+  participant Digest as DigestService
+  Sched->>Ingest: pull topic query
+  Ingest->>DB: insert if url_hash is new
+  Sched->>LLM: summarize + sentiment
+  LLM->>DB: article_enrichments
+  Sched->>Digest: cluster titles, write daily digest
+  Digest->>DB: digests + digest_items
 ```
 
 More detail: [docs/architecture.md](docs/architecture.md)
@@ -36,29 +52,19 @@ More detail: [docs/architecture.md](docs/architecture.md)
 | News | GNews behind `NewsSource` | First live source; RSS can be added without touching persist/digest logic |
 | LLM | OpenRouter (`LlmClient`) | Claude (or other) models without locking the code to one vendor SDK |
 | Frontend | React + TypeScript + Vite + Tailwind | REST-only SPA; deploy to Vercel |
-| Packaging | Docker Compose | `db` + `api` + `frontend` (nginx reverse-proxy to the API) |
+| Packaging | Docker Compose | `db` + `api` + `frontend` (nginx reverse-proxies `/api`) |
 
-## API
+## Dashboard
 
-| Method | Path | Auth |
-| --- | --- | --- |
-| `POST` | `/api/auth/login` | public |
-| `GET` | `/api/topics` | public |
-| `POST` | `/api/topics` | JWT admin |
-| `POST` | `/api/ingestion/runs` | JWT admin |
-| `POST` | `/api/enrichment/runs` | JWT admin |
-| `POST` | `/api/digests/runs` | JWT admin |
-| `GET` | `/api/articles` | public, filterable |
-| `GET` | `/api/digests/latest` | public |
-| `GET` | `/api/digests/{date}` | public, optional `topicId` |
-| `GET` | `/api/stats` | public, optional `topicId`/`from`/`to` |
-| `GET` | `/swagger-ui.html` | public |
+![Daily digest with sentiment mix, 7-day trend, and clustered stories](docs/screenshots/digest.png)
 
-Error body is consistent (`status`, `error`, `message`, `path`, `details`). See [docs/api.md](docs/api.md).
+![Article list with sentiment, source, and date filters](docs/screenshots/articles.png)
+
+Public reads need no login. **Admin** signs in with `APP_ADMIN_*` to ingest, enrich, generate a digest, and manage topics.
 
 ## Local setup
 
-**Prereqs:** Docker Desktop. JDK 21 / Node 20+ are only needed if you run services outside Compose.
+**Prereqs:** Docker Desktop. JDK 21 / Node 22 are only needed outside Compose.
 
 ```bash
 cp .env.example .env
@@ -70,68 +76,73 @@ docker compose up --build
 | --- | --- |
 | Dashboard | http://localhost |
 | API | http://localhost:8080 |
-| Swagger | http://localhost:8080/swagger-ui.html (also via http://localhost/swagger-ui.html) |
+| Swagger | http://localhost:8080/swagger-ui.html |
 | Health | http://localhost:8080/actuator/health |
 
-The nginx frontend proxies `/api` to the API container, so the browser stays same-origin. Digest, articles, and stats are public; open **Admin** and sign in with `APP_ADMIN_*` to run ingest/enrich/digest.
+nginx serves the SPA and proxies `/api` to the API container (same-origin). If port 80 is taken, change the frontend mapping in `docker-compose.yml` to `"8088:80"`.
 
-If port 80 is already taken, change the frontend host port in `docker-compose.yml` (`"8088:80"`) and open that instead.
+### First briefing
+
+1. Open http://localhost → **Admin**
+2. Sign in with `APP_ADMIN_USERNAME` / `APP_ADMIN_PASSWORD`
+3. **Ingest now** → **Enrich pending** → **Generate today's digest**
+4. Open **Digest** (empty until those runs finish)
 
 ### Frontend hot-reload (optional)
 
-Leave Compose running for `db` + `api`, then:
-
 ```bash
-cd frontend
-cp .env.example .env
-npm install
-npm run dev
+docker compose up db api
+cd frontend && npm install && npm run dev
 ```
 
 Vite on http://localhost:5173 proxies `/api` to `:8080`.
 
-Login (values from your `.env`):
+### Tests
 
 ```bash
-curl -s http://localhost:8080/api/auth/login ^
-  -H "Content-Type: application/json" ^
-  -d "{\"username\":\"admin\",\"password\":\"YOUR_PASSWORD\"}"
+cd backend && ./mvnw -B verify
+cd ../frontend && npm test && npm run build
 ```
 
-After login, you can run the pipeline on demand:
+Testcontainers ITs skip automatically if Docker is not running (`disabledWithoutDocker = true`). GitHub Actions has Docker, so they run in CI.
 
-```bash
-curl -s -X POST http://localhost:8080/api/ingestion/runs -H "Authorization: Bearer TOKEN"
-curl -s -X POST http://localhost:8080/api/enrichment/runs -H "Authorization: Bearer TOKEN"
-curl -s -X POST http://localhost:8080/api/digests/runs -H "Authorization: Bearer TOKEN"
-curl -s http://localhost:8080/api/digests/latest
-curl -s http://localhost:8080/api/stats
+## API
+
+| Method | Path | Auth |
+| --- | --- | --- |
+| `POST` | `/api/auth/login` | public |
+| `GET` | `/api/topics` | public |
+| `POST` | `/api/topics` | JWT admin |
+| `PATCH` | `/api/topics/{id}` | JWT admin |
+| `POST` | `/api/ingestion/runs` | JWT admin |
+| `POST` | `/api/enrichment/runs` | JWT admin |
+| `POST` | `/api/digests/runs` | JWT admin |
+| `GET` | `/api/articles` | public, filterable |
+| `GET` | `/api/digests/latest` | public |
+| `GET` | `/api/digests/{date}` | public, optional `topicId` |
+| `GET` | `/api/stats` | public, optional `topicId`/`from`/`to` |
+| `GET` | `/swagger-ui.html` | public |
+
+Error body is consistent (`status`, `error`, `message`, `path`, `details`). See [docs/api.md](docs/api.md).
+
+## Repo layout
+
+```
+backend/    Spring Boot 4.1 API (Flyway, JWT, GNews, OpenRouter)
+frontend/    React + Vite + Tailwind SPA
+docs/        architecture, API notes, AI-workflow, screenshots
+docker-compose.yml
 ```
 
-Run tests (Docker required for Testcontainers):
+## Hosting
 
-```bash
-cd backend
-./mvnw -B verify
-cd ../frontend
-npm test
-npm run build
-```
-
-### Neon
-
-Create a Postgres database in [Neon](https://neon.tech), then set:
-
-```env
-DATABASE_URL=postgresql://USER:PASSWORD@HOST/dbname?sslmode=require
-SPRING_PROFILES_ACTIVE=prod
-```
+| Piece | Local | Production |
+| --- | --- | --- |
+| API | Compose / `mvn spring-boot:run` | JVM host (Railway/Render). **Vercel cannot run Spring Boot.** |
+| Database | Postgres 16 in Compose | [Neon](https://neon.tech) — set `DATABASE_URL` |
+| Frontend | nginx `:80` or Vite `:5173` | Vercel — set `VITE_API_URL` to the API origin |
 
 The API accepts Neon-style `postgres://` URLs and maps them to JDBC. Do not also set `SPRING_DATASOURCE_URL` if you want `DATABASE_URL` to win.
-
-### Vercel
-
-Vercel hosts the **frontend SPA**, not the JVM API. Set `VITE_API_URL` to the deployed Spring Boot origin (Railway or Render). Putting the JAR on Vercel is not supported.
 
 ## Secrets
 
@@ -142,11 +153,31 @@ Keys live in `.env` (gitignored). `.env.example` is the template. If a key was e
 - Redis cache for digest payloads
 - Durable queue (Kafka or at least an outbox) for the ingest → enrich pipeline
 - SMTP daily digest
-- Additional `NewsSource` adapters (RSS, GNews already planned as first)
+- Additional `NewsSource` adapters (RSS is the obvious next source)
 
 ## How I used AI tools
 
-See [docs/ai-workflow.md](docs/ai-workflow.md) — concrete split between scaffolding help and design decisions I own.
+This is a portfolio piece for a Java / Spring Boot role. Cursor was a pair-programmer, not an unsupervised generator.
+
+**Where it helped**
+
+- Bootstrapped the Spring Boot 4.1 Maven layout, Dockerfiles, Compose wiring, and the GitHub Actions workflow.
+- Drafted repetitive layers: JPA entities matching Flyway, request/response records, `@ControllerAdvice`.
+- First-pass unit tests (`TopicService`, `AuthService`), which I then tightened around duplicate names and JWT claims.
+- First-pass Vite routes / API client / Recharts wiring, which I restyled as an editorial briefing instead of a generic admin template.
+
+**Decisions I made myself**
+
+- Domain: topics → articles → enrichments → clusters → digests, with **URL-hash** uniqueness (not title matching).
+- `NewsSource` / `LlmClient` ports so GNews and OpenRouter can be swapped without touching digest logic.
+- PostgreSQL + Neon instead of MySQL, because the live database target is Neon.
+- JWT for admin writes; public GETs so a briefing is readable without a login wall.
+- Vercel for the SPA only. The API stays on a JVM host; that constraint is documented rather than papered over.
+- Title Jaccard clustering (threshold 0.45) as a cheap, deterministic stand-in for embeddings.
+
+**What I did not outsource:** Flyway schema, the security filter chain, and production flags (`ddl-auto=validate`, `open-in-view=false`, virtual threads, CORS).
+
+Longer notes: [docs/ai-workflow.md](docs/ai-workflow.md)
 
 ## License
 

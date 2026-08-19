@@ -61,4 +61,11 @@ Flyway owns schema. `spring.jpa.hibernate.ddl-auto=validate` in every profile.
 
 A clean machine needs Docker Desktop and a filled `.env`. `docker compose up --build` starts Postgres, the API, and the dashboard.
 
-Redis caching and a durable processing queue are documented future work, not in Phase 1.
+## Processing pipeline
+
+1. **Ingest** — `GnewsNewsSource` searches each active topic; URL SHA-256 after normalization is the uniqueness key. HTTP stays outside the DB transaction.
+2. **Enrich** — `OpenRouterLlmClient` writes summary, sentiment, justification, stance. Per-article failures are counted and skipped.
+3. **Cluster** — unclustered articles are union-find grouped by identical `contentHash` or title Jaccard ≥ `app.digest.cluster-similarity`.
+4. **Digest** — UTC calendar day, enriched articles only, ranked by distinct `sourceName` then recency. Scheduler writes yesterday at 00:05 UTC.
+
+Redis caching and a durable processing queue are documented future work.
