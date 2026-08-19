@@ -26,13 +26,18 @@ public class ArticleService {
 	public PageResponse<ArticleResponse> search(
 			Long topicId,
 			String source,
+			String sourceName,
+			Long clusterId,
 			Sentiment sentiment,
 			Instant from,
 			Instant to,
 			Pageable pageable
 	) {
 		Page<ArticleResponse> page = articleRepository
-				.findAll(ArticleSpecifications.withFilters(topicId, source, sentiment, from, to), pageable)
+				.findAll(
+						ArticleSpecifications.withFilters(topicId, source, sourceName, clusterId, sentiment, from, to),
+						pageable
+				)
 				.map(NewsPulseMapper::toResponse);
 		return PageResponse.from(page);
 	}

@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --color-ink: #0c1117;
+  --color-panel: #141b24;
+  --color-panel-2: #1b2430;
+  --color-line: #2a3646;
+  --color-paper: #e8eef4;
+  --color-mute: #8b9bb0;
+  --color-gold: #d4a017;
+  --color-gold-dim: #8a6a12;
+  --color-pos: #3dba8b;
+  --color-neu: #c9a227;
+  --color-neg: #e05d5d;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-gold) 40%, transparent);
+}

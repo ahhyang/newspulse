@@ -33,12 +33,14 @@ public class ArticleController {
 	public PageResponse<ArticleResponse> search(
 			@RequestParam(required = false) Long topicId,
 			@RequestParam(required = false) String source,
+			@RequestParam(required = false) String sourceName,
+			@RequestParam(required = false) Long clusterId,
 			@RequestParam(required = false) Sentiment sentiment,
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,
 			@PageableDefault(size = 20, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
-		return articleService.search(topicId, source, sentiment, from, to, pageable);
+		return articleService.search(topicId, source, sourceName, clusterId, sentiment, from, to, pageable);
 	}
 
 	@GetMapping("/{id}")

@@ -57,6 +57,6 @@ Flyway owns schema. `spring.jpa.hibernate.ddl-auto=validate` in every profile.
 | --- | --- | --- |
 | API | Docker / `mvn spring-boot:run` | JVM host (Railway/Render). Vercel cannot run Spring Boot. |
 | Database | Postgres 16 in Compose | Neon (set `DATABASE_URL`) |
-| Frontend | Vite dev server (Phase 5) | Vercel |
+| Frontend | Vite dev server | Vercel (`VITE_API_URL` → API origin) |
 
 Redis caching and a durable processing queue are documented future work, not in Phase 1.

@@ -16,6 +16,8 @@ public final class ArticleSpecifications {
 	public static Specification<Article> withFilters(
 			Long topicId,
 			String source,
+			String sourceName,
+			Long clusterId,
 			Sentiment sentiment,
 			Instant from,
 			Instant to
@@ -31,8 +33,14 @@ public final class ArticleSpecifications {
 			if (topicId != null) {
 				predicates.add(cb.equal(root.get("topic").get("id"), topicId));
 			}
+			if (clusterId != null) {
+				predicates.add(cb.equal(root.get("cluster").get("id"), clusterId));
+			}
 			if (source != null && !source.isBlank()) {
 				predicates.add(cb.equal(cb.lower(root.get("source")), source.toLowerCase()));
+			}
+			if (sourceName != null && !sourceName.isBlank()) {
+				predicates.add(cb.equal(cb.lower(root.get("sourceName")), sourceName.toLowerCase()));
 			}
 			if (from != null) {
 				predicates.add(cb.greaterThanOrEqualTo(root.get("publishedAt"), from));

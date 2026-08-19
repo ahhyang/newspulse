@@ -1,6 +1,6 @@
 # NewsPulse
 
-AI-native news aggregation and sentiment briefing platform. Java / Spring Boot API with a React dashboard (dashboard lands in a later phase).
+AI-native news aggregation and sentiment briefing platform. Java / Spring Boot API with a React dashboard.
 
 [![CI](https://github.com/ahhyang/newspulse/actions/workflows/ci.yml/badge.svg)](https://github.com/ahhyang/newspulse/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-21-orange)
@@ -10,7 +10,7 @@ AI-native news aggregation and sentiment briefing platform. Java / Spring Boot A
 
 NewsPulse pulls articles about a tracked topic (default: **AI industry**), stores them, enriches them with an LLM (summary, sentiment, stance), clusters near-duplicate coverage, and produces a daily digest.
 
-> **Status:** Phase 4 — daily digest + title clustering + sentiment stats. React dashboard is next.
+> **Status:** Phase 5 — React dashboard is live (digest, articles, sentiment chart, admin). Dockerizing the SPA is next.
 
 ## Architecture
 
@@ -35,8 +35,8 @@ More detail: [docs/architecture.md](docs/architecture.md)
 | Auth | JWT (admin writes) | Public read APIs for the dashboard |
 | News | GNews behind `NewsSource` | First live source; RSS can be added without touching persist/digest logic |
 | LLM | OpenRouter (`LlmClient`) | Claude (or other) models without locking the code to one vendor SDK |
-| Frontend | React + TypeScript + Vite + Tailwind | Phase 5; deploy to Vercel |
-| Packaging | Docker Compose | `db` + `api` today; frontend service later |
+| Frontend | React + TypeScript + Vite + Tailwind | REST-only SPA; deploy to Vercel |
+| Packaging | Docker Compose | `db` + `api` today; frontend image in Phase 6 |
 
 ## API
 
@@ -58,7 +58,7 @@ Error body is consistent (`status`, `error`, `message`, `path`, `details`). See 
 
 ## Local setup
 
-**Prereqs:** Docker Desktop, JDK 21, Maven 3.9+ (or the included `backend/mvnw`).
+**Prereqs:** Docker Desktop, JDK 21, Node 20+, Maven 3.9+ (or the included `backend/mvnw`).
 
 ```bash
 cp .env.example .env
@@ -69,6 +69,17 @@ docker compose up --build
 API: http://localhost:8080  
 Swagger: http://localhost:8080/swagger-ui.html  
 Health: http://localhost:8080/actuator/health
+
+Dashboard (separate terminal):
+
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+UI: http://localhost:5173 — Vite proxies `/api` to the Spring Boot process on :8080. Digest, articles, and stats are public; Admin signs in with `APP_ADMIN_*` to run ingest/enrich/digest and manage topics.
 
 Login (values from your `.env`):
 
@@ -93,6 +104,9 @@ Run tests (Docker required for Testcontainers):
 ```bash
 cd backend
 ./mvnw -B verify
+cd ../frontend
+npm test
+npm run build
 ```
 
 ### Neon
@@ -108,7 +122,7 @@ The API accepts Neon-style `postgres://` URLs and maps them to JDBC. Do not also
 
 ### Vercel
 
-Vercel hosts the **frontend SPA**, not the JVM API. Phase 5 will add `frontend/` with `VITE_API_URL` pointing at the deployed Spring Boot host (Railway or Render). Putting the JAR on Vercel is not supported.
+Vercel hosts the **frontend SPA**, not the JVM API. Set `VITE_API_URL` to the deployed Spring Boot origin (Railway or Render). Putting the JAR on Vercel is not supported.
 
 ## Secrets
 
