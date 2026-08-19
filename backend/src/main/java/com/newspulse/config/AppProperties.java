@@ -8,6 +8,7 @@ public record AppProperties(
 		Admin admin,
 		Cors cors,
 		Ingestion ingestion,
+		Enrichment enrichment,
 		Llm llm,
 		Gnews gnews
 ) {
@@ -19,13 +20,18 @@ public record AppProperties(
 
 	public record Ingestion(boolean enabled, long intervalMs, long initialDelayMs, int lookbackHours) {}
 
+	public record Enrichment(boolean enabled, long intervalMs, long initialDelayMs, int batchSize) {}
+
 	public record Llm(
+			boolean enabled,
 			String provider,
 			String baseUrl,
 			String apiKey,
 			String model,
 			String httpReferer,
-			String appTitle
+			String appTitle,
+			int maxTokens,
+			int maxContentChars
 	) {}
 
 	public record Gnews(

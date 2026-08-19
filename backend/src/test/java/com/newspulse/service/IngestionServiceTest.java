@@ -17,6 +17,7 @@ import com.newspulse.ingestion.NewsSource.RawArticle;
 import com.newspulse.ingestion.UrlNormalizer;
 import com.newspulse.repository.ArticleRepository;
 import com.newspulse.repository.TopicRepository;
+import com.newspulse.support.AppPropertiesFixture;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -48,14 +49,7 @@ class IngestionServiceTest {
 	void setUp() {
 		topic = new Topic("AI Industry", "artificial intelligence", "desc");
 		topic.setId(1L);
-		AppProperties properties = new AppProperties(
-				new AppProperties.Jwt("test-jwt-secret-key-that-is-long-enough-for-hs256-algorithms", 3600000),
-				new AppProperties.Admin("admin", "s3cret"),
-				new AppProperties.Cors("http://localhost:5173"),
-				new AppProperties.Ingestion(true, 3600000, 20000, 24),
-				new AppProperties.Llm("openrouter", "https://openrouter.ai/api/v1", "test", "model", "https://example.com", "NewsPulse"),
-				new AppProperties.Gnews(true, "key", "https://gnews.io/api/v4", "en", 10)
-		);
+		AppProperties properties = AppPropertiesFixture.defaults();
 		NewsSource source = new NewsSource() {
 			@Override
 			public String id() {
@@ -150,14 +144,7 @@ class IngestionServiceTest {
 				throw new IllegalStateException("GNews down");
 			}
 		};
-		AppProperties properties = new AppProperties(
-				new AppProperties.Jwt("test-jwt-secret-key-that-is-long-enough-for-hs256-algorithms", 3600000),
-				new AppProperties.Admin("admin", "s3cret"),
-				new AppProperties.Cors("http://localhost:5173"),
-				new AppProperties.Ingestion(true, 3600000, 20000, 24),
-				new AppProperties.Llm("openrouter", "https://openrouter.ai/api/v1", "test", "model", "https://example.com", "NewsPulse"),
-				new AppProperties.Gnews(true, "key", "https://gnews.io/api/v4", "en", 10)
-		);
+		AppProperties properties = AppPropertiesFixture.defaults();
 		ingestionService = new IngestionService(
 				topicRepository,
 				articleRepository,

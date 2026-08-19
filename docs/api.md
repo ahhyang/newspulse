@@ -23,6 +23,7 @@ Admin ingest: `POST /api/ingestion/runs` with a Bearer JWT. The scheduler also r
 | POST | `/api/topics` | Create a tracked topic |
 | PATCH | `/api/topics/{id}` | Update a topic |
 | POST | `/api/ingestion/runs` | Pull GNews now |
+| POST | `/api/enrichment/runs` | Summarize + classify unenriched articles |
 
 Errors use a single envelope:
 

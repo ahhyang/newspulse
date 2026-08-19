@@ -3,8 +3,10 @@ package com.newspulse.repository;
 import com.newspulse.domain.Article;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -22,6 +24,13 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpec
 
 	@Query("select a.urlHash from Article a where a.urlHash in :hashes")
 	Set<String> findExistingHashes(@Param("hashes") Collection<String> hashes);
+
+	@Query("""
+			select a from Article a
+			where not exists (select 1 from ArticleEnrichment e where e.article = a)
+			order by a.publishedAt desc nulls last, a.id desc
+			""")
+	List<Article> findUnenriched(Pageable pageable);
 
 	@EntityGraph(attributePaths = {"enrichment", "topic", "cluster"})
 	Optional<Article> findWithDetailsById(Long id);

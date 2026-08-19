@@ -17,8 +17,17 @@ app:
     interval-ms: 3600000
     initial-delay-ms: 60000
     lookback-hours: 24
+  enrichment:
+    enabled: false
+    interval-ms: 120000
+    initial-delay-ms: 60000
+    batch-size: 8
   llm:
+    enabled: false
     api-key: test
+    model: stub
+    max-tokens: 200
+    max-content-chars: 1000
   gnews:
     enabled: false
     api-key: test

@@ -57,13 +57,21 @@ app:
     interval-ms: ${INGESTION_INTERVAL_MS:3600000}
     initial-delay-ms: ${INGESTION_INITIAL_DELAY_MS:20000}
     lookback-hours: ${INGESTION_LOOKBACK_HOURS:24}
+  enrichment:
+    enabled: ${ENRICHMENT_ENABLED:true}
+    interval-ms: ${ENRICHMENT_INTERVAL_MS:120000}
+    initial-delay-ms: ${ENRICHMENT_INITIAL_DELAY_MS:40000}
+    batch-size: ${ENRICHMENT_BATCH_SIZE:8}
   llm:
+    enabled: ${LLM_ENABLED:true}
     provider: openrouter
     base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
     api-key: ${OPENROUTER_API_KEY:}
     model: ${OPENROUTER_MODEL:anthropic/claude-3.5-sonnet}
     http-referer: ${OPENROUTER_HTTP_REFERER:https://github.com/ahhyang/newspulse}
     app-title: NewsPulse
+    max-tokens: ${OPENROUTER_MAX_TOKENS:500}
+    max-content-chars: ${OPENROUTER_MAX_CONTENT_CHARS:4000}
   gnews:
     enabled: ${GNEWS_ENABLED:true}
     api-key: ${GNEWS_API_KEY:}
