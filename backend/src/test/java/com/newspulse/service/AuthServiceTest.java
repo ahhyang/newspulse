@@ -22,9 +22,9 @@ class AuthServiceTest {
 				new AppProperties.Jwt("test-jwt-secret-key-that-is-long-enough-for-hs256-algorithms", 3600000),
 				new AppProperties.Admin("admin", "s3cret"),
 				new AppProperties.Cors("http://localhost:5173"),
-				new AppProperties.Ingestion(3600000),
+				new AppProperties.Ingestion(false, 3600000, 20000, 24),
 				new AppProperties.Llm("openrouter", "https://openrouter.ai/api/v1", "test", "model", "https://example.com", "NewsPulse"),
-				new AppProperties.Gnews("test", "https://gnews.io/api/v4")
+				new AppProperties.Gnews(true, "test", "https://gnews.io/api/v4", "en", 10)
 		);
 		jwtService = new JwtService(properties);
 		authService = new AuthService(properties, new BCryptPasswordEncoder(), jwtService);

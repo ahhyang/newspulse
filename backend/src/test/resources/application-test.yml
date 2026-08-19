@@ -12,7 +12,16 @@ app:
     password: test-password
   cors:
     allowed-origins: http://localhost:5173
+  ingestion:
+    enabled: false
+    interval-ms: 3600000
+    initial-delay-ms: 60000
+    lookback-hours: 24
   llm:
     api-key: test
   gnews:
+    enabled: false
     api-key: test
+    base-url: https://gnews.io/api/v4
+    lang: en
+    max-results: 10

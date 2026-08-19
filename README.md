@@ -10,7 +10,7 @@ AI-native news aggregation and sentiment briefing platform. Java / Spring Boot A
 
 NewsPulse pulls articles about a tracked topic (default: **AI industry**), stores them, enriches them with an LLM (summary, sentiment, stance), clusters near-duplicate coverage, and produces a daily digest.
 
-> **Status:** Phase 1 — backend scaffold (schema, JWT, REST surface). Ingestion, LLM enrichment, digest generation, and the React UI are next.
+> **Status:** Phase 2 — GNews ingestion is live (URL-hash dedupe + scheduler). LLM enrichment, digest generation, and the React UI are next.
 
 ## Architecture
 
@@ -33,18 +33,19 @@ More detail: [docs/architecture.md](docs/architecture.md)
 | Persistence | Spring Data JPA + Flyway | Versioned schema; Hibernate `ddl-auto=validate` only |
 | Database | PostgreSQL 16 locally, Neon in prod | Neon is Postgres. Same dialect in Compose and cloud. |
 | Auth | JWT (admin writes) | Public read APIs for the dashboard |
-| News | GNews behind `NewsSource` | First live source in Phase 2; RSS next |
+| News | GNews behind `NewsSource` | First live source; RSS can be added without touching persist/digest logic |
 | LLM | OpenRouter (`LlmClient`) | Claude (or other) models without locking the code to one vendor SDK |
 | Frontend | React + TypeScript + Vite + Tailwind | Phase 5; deploy to Vercel |
 | Packaging | Docker Compose | `db` + `api` today; frontend service later |
 
-## API (Phase 1)
+## API
 
 | Method | Path | Auth |
 | --- | --- | --- |
 | `POST` | `/api/auth/login` | public |
 | `GET` | `/api/topics` | public |
 | `POST` | `/api/topics` | JWT admin |
+| `POST` | `/api/ingestion/runs` | JWT admin |
 | `GET` | `/api/articles` | public, filterable |
 | `GET` | `/api/digests/latest` | public (404 until Phase 4) |
 | `GET` | `/api/digests/{date}` | public (404 until Phase 4) |

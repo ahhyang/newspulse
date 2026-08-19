@@ -17,7 +17,7 @@ public record AppProperties(
 
 	public record Cors(String allowedOrigins) {}
 
-	public record Ingestion(long intervalMs) {}
+	public record Ingestion(boolean enabled, long intervalMs, long initialDelayMs, int lookbackHours) {}
 
 	public record Llm(
 			String provider,
@@ -28,5 +28,11 @@ public record AppProperties(
 			String appTitle
 	) {}
 
-	public record Gnews(String apiKey, String baseUrl) {}
+	public record Gnews(
+			boolean enabled,
+			String apiKey,
+			String baseUrl,
+			String lang,
+			int maxResults
+	) {}
 }

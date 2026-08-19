@@ -14,12 +14,15 @@ Interactive docs: [http://localhost:8080/swagger-ui.html](http://localhost:8080/
 | GET | `/api/stats` | Sentiment series (empty until enrichment) |
 | GET | `/actuator/health` | Liveness/readiness |
 
+Admin ingest: `POST /api/ingestion/runs` with a Bearer JWT. The scheduler also runs on `app.ingestion.interval-ms` (default 1 hour) and never crashes the process on GNews errors.
+
 ## Admin (Bearer JWT)
 
-| Method | Path |
-| --- | --- |
-| POST | `/api/topics` |
-| PATCH | `/api/topics/{id}` |
+| Method | Path | Notes |
+| --- | --- | --- |
+| POST | `/api/topics` | Create a tracked topic |
+| PATCH | `/api/topics/{id}` | Update a topic |
+| POST | `/api/ingestion/runs` | Pull GNews now |
 
 Errors use a single envelope:
 
