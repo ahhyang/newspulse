@@ -142,6 +142,8 @@ docker-compose.yml
 | Database | Postgres 16 in Compose | [Neon](https://neon.tech) — set `DATABASE_URL` |
 | Frontend | nginx `:80` or Vite `:5173` | Vercel — set `VITE_API_URL` to the API origin |
 
+Step-by-step production setup: [docs/deploy.md](docs/deploy.md).
+
 The API accepts Neon-style `postgres://` URLs and maps them to JDBC. Do not also set `SPRING_DATASOURCE_URL` if you want `DATABASE_URL` to win.
 
 ## Secrets
