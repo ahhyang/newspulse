@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/newspulse}
+    username: ${SPRING_DATASOURCE_USERNAME:newspulse}
+    password: ${SPRING_DATASOURCE_PASSWORD:newspulse}
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    com.newspulse: DEBUG
+    org.flywaydb: INFO

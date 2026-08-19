@@ -1,0 +1,36 @@
+# Maven
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+*.pem
+*.p12
+.secrets-generated.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# Node (frontend, later)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Logs
+*.log
+logs/
+
+# Java
+*.class
+*.jar
+!backend/.mvn/wrapper/maven-wrapper.jar
+hs_err_pid*

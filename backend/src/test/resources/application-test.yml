@@ -1,0 +1,18 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+app:
+  jwt:
+    secret: test-jwt-secret-key-that-is-long-enough-for-hs256-algorithms
+    expiration-ms: 3600000
+  admin:
+    username: admin
+    password: test-password
+  cors:
+    allowed-origins: http://localhost:5173
+  llm:
+    api-key: test
+  gnews:
+    api-key: test
