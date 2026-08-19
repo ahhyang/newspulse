@@ -10,7 +10,7 @@ AI-native news aggregation and sentiment briefing platform. Java / Spring Boot A
 
 NewsPulse pulls articles about a tracked topic (default: **AI industry**), stores them, enriches them with an LLM (summary, sentiment, stance), clusters near-duplicate coverage, and produces a daily digest.
 
-> **Status:** Phase 5 — React dashboard is live (digest, articles, sentiment chart, admin). Dockerizing the SPA is next.
+> **Status:** Phase 6 — `docker compose up --build` runs Postgres, the API, and the dashboard. README/CI polish is next.
 
 ## Architecture
 
@@ -36,7 +36,7 @@ More detail: [docs/architecture.md](docs/architecture.md)
 | News | GNews behind `NewsSource` | First live source; RSS can be added without touching persist/digest logic |
 | LLM | OpenRouter (`LlmClient`) | Claude (or other) models without locking the code to one vendor SDK |
 | Frontend | React + TypeScript + Vite + Tailwind | REST-only SPA; deploy to Vercel |
-| Packaging | Docker Compose | `db` + `api` today; frontend image in Phase 6 |
+| Packaging | Docker Compose | `db` + `api` + `frontend` (nginx reverse-proxy to the API) |
 
 ## API
 
@@ -58,7 +58,7 @@ Error body is consistent (`status`, `error`, `message`, `path`, `details`). See 
 
 ## Local setup
 
-**Prereqs:** Docker Desktop, JDK 21, Node 20+, Maven 3.9+ (or the included `backend/mvnw`).
+**Prereqs:** Docker Desktop. JDK 21 / Node 20+ are only needed if you run services outside Compose.
 
 ```bash
 cp .env.example .env
@@ -66,11 +66,20 @@ cp .env.example .env
 docker compose up --build
 ```
 
-API: http://localhost:8080  
-Swagger: http://localhost:8080/swagger-ui.html  
-Health: http://localhost:8080/actuator/health
+| Service | URL |
+| --- | --- |
+| Dashboard | http://localhost |
+| API | http://localhost:8080 |
+| Swagger | http://localhost:8080/swagger-ui.html (also via http://localhost/swagger-ui.html) |
+| Health | http://localhost:8080/actuator/health |
 
-Dashboard (separate terminal):
+The nginx frontend proxies `/api` to the API container, so the browser stays same-origin. Digest, articles, and stats are public; open **Admin** and sign in with `APP_ADMIN_*` to run ingest/enrich/digest.
+
+If port 80 is already taken, change the frontend host port in `docker-compose.yml` (`"8088:80"`) and open that instead.
+
+### Frontend hot-reload (optional)
+
+Leave Compose running for `db` + `api`, then:
 
 ```bash
 cd frontend
@@ -79,7 +88,7 @@ npm install
 npm run dev
 ```
 
-UI: http://localhost:5173 — Vite proxies `/api` to the Spring Boot process on :8080. Digest, articles, and stats are public; Admin signs in with `APP_ADMIN_*` to run ingest/enrich/digest and manage topics.
+Vite on http://localhost:5173 proxies `/api` to `:8080`.
 
 Login (values from your `.env`):
 

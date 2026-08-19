@@ -4,7 +4,7 @@ This project is a portfolio piece for a Java/Spring Boot role. Cursor (Composer)
 
 ## Where Cursor / Claude helped
 
-- Bootstrapped the Spring Boot 4.1 Maven layout, Dockerfile, and GitHub Actions workflow.
+- Bootstrapped the Spring Boot 4.1 Maven layout, Dockerfiles, Compose wiring, and GitHub Actions workflow.
 - Drafted repetitive layers: JPA entities matching the Flyway schema, request/response records, and the `@ControllerAdvice` error envelope.
 - Generated first-pass unit tests for `TopicService` and `AuthService`, which I then tightened around duplicate-name and JWT claims behavior.
 - Drafted the Vite + Tailwind dashboard shell (routes, API client, Recharts wiring), which I then restyled as an editorial briefing rather than a generic admin template.
