@@ -10,7 +10,7 @@ AI-native news aggregation and sentiment briefing platform. Java / Spring Boot A
 
 NewsPulse pulls articles about a tracked topic (default: **AI industry**), stores them, enriches them with an LLM (summary, sentiment, stance), clusters near-duplicate coverage, and produces a daily digest.
 
-> **Status:** Phase 2 — GNews ingestion is live (URL-hash dedupe + scheduler). LLM enrichment, digest generation, and the React UI are next.
+> **Status:** Phase 3 — GNews ingestion + OpenRouter enrichment (summary, sentiment, stance). Digest generation and the React UI are next.
 
 ## Architecture
 
@@ -46,6 +46,7 @@ More detail: [docs/architecture.md](docs/architecture.md)
 | `GET` | `/api/topics` | public |
 | `POST` | `/api/topics` | JWT admin |
 | `POST` | `/api/ingestion/runs` | JWT admin |
+| `POST` | `/api/enrichment/runs` | JWT admin |
 | `GET` | `/api/articles` | public, filterable |
 | `GET` | `/api/digests/latest` | public (404 until Phase 4) |
 | `GET` | `/api/digests/{date}` | public (404 until Phase 4) |

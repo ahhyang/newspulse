@@ -11,6 +11,7 @@ import com.newspulse.config.AppProperties;
 import com.newspulse.domain.Topic;
 import com.newspulse.ingestion.IngestionSourceException;
 import com.newspulse.ingestion.NewsSource.RawArticle;
+import com.newspulse.support.AppPropertiesFixture;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,14 +46,7 @@ class GnewsNewsSourceTest {
 	void setUp() {
 		RestClient.Builder builder = RestClient.builder();
 		server = MockRestServiceServer.bindTo(builder).build();
-		AppProperties properties = new AppProperties(
-				new AppProperties.Jwt("test-jwt-secret-key-that-is-long-enough-for-hs256-algorithms", 3600000),
-				new AppProperties.Admin("admin", "s3cret"),
-				new AppProperties.Cors("http://localhost:5173"),
-				new AppProperties.Ingestion(false, 3600000, 20000, 24),
-				new AppProperties.Llm("openrouter", "https://openrouter.ai/api/v1", "test", "model", "https://example.com", "NewsPulse"),
-				new AppProperties.Gnews(true, "gnews-key", "https://gnews.io/api/v4", "en", 10)
-		);
+		AppProperties properties = AppPropertiesFixture.defaults("gnews-key");
 		source = new GnewsNewsSource(builder, properties);
 	}
 

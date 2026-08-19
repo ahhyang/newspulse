@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.newspulse.config.AppProperties;
 import com.newspulse.dto.LoginRequest;
 import com.newspulse.security.JwtService;
+import com.newspulse.support.AppPropertiesFixture;
 import com.newspulse.web.UnauthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,14 +19,7 @@ class AuthServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		AppProperties properties = new AppProperties(
-				new AppProperties.Jwt("test-jwt-secret-key-that-is-long-enough-for-hs256-algorithms", 3600000),
-				new AppProperties.Admin("admin", "s3cret"),
-				new AppProperties.Cors("http://localhost:5173"),
-				new AppProperties.Ingestion(false, 3600000, 20000, 24),
-				new AppProperties.Llm("openrouter", "https://openrouter.ai/api/v1", "test", "model", "https://example.com", "NewsPulse"),
-				new AppProperties.Gnews(true, "test", "https://gnews.io/api/v4", "en", 10)
-		);
+		AppProperties properties = AppPropertiesFixture.defaults();
 		jwtService = new JwtService(properties);
 		authService = new AuthService(properties, new BCryptPasswordEncoder(), jwtService);
 	}

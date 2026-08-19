@@ -2,6 +2,7 @@ package com.newspulse.ingestion;
 
 import com.newspulse.config.AppProperties;
 import com.newspulse.dto.IngestionRunResponse;
+import com.newspulse.service.EnrichmentService;
 import com.newspulse.service.IngestionService;
 import com.newspulse.web.ConflictException;
 import org.slf4j.Logger;
@@ -15,10 +16,16 @@ public class IngestionScheduler {
 	private static final Logger log = LoggerFactory.getLogger(IngestionScheduler.class);
 
 	private final IngestionService ingestionService;
+	private final EnrichmentService enrichmentService;
 	private final AppProperties appProperties;
 
-	public IngestionScheduler(IngestionService ingestionService, AppProperties appProperties) {
+	public IngestionScheduler(
+			IngestionService ingestionService,
+			EnrichmentService enrichmentService,
+			AppProperties appProperties
+	) {
 		this.ingestionService = ingestionService;
+		this.enrichmentService = enrichmentService;
 		this.appProperties = appProperties;
 	}
 
@@ -40,6 +47,9 @@ public class IngestionScheduler {
 					result.duplicates(),
 					result.sourceFailures()
 			);
+			if (result.inserted() > 0 && appProperties.enrichment().enabled()) {
+				enrichmentService.enrichUnprocessedAsync();
+			}
 		} catch (ConflictException ex) {
 			log.info("Skipping scheduled ingestion: {}", ex.getMessage());
 		} catch (Exception ex) {
