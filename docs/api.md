@@ -22,6 +22,7 @@ Admin ingest: `POST /api/ingestion/runs` with a Bearer JWT. The scheduler also r
 | --- | --- | --- |
 | POST | `/api/topics` | Create a tracked topic |
 | PATCH | `/api/topics/{id}` | Update a topic |
+| POST | `/api/summaries/batch` | AI briefing from 2–12 selected article IDs (public) |
 | POST | `/api/ingestion/runs` | Pull GNews + Hacker News now |
 | POST | `/api/enrichment/runs` | Summarize + classify unenriched articles |
 | POST | `/api/digests/runs` | Generate/regenerate digests for a UTC date (`date`, optional `topicId`) |

@@ -32,6 +32,9 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpec
 			""")
 	List<Article> findUnenriched(Pageable pageable);
 
+	@EntityGraph(attributePaths = {"enrichment", "topic"})
+	List<Article> findAllByIdIn(Collection<Long> ids);
+
 	@EntityGraph(attributePaths = {"enrichment", "topic", "cluster"})
 	Optional<Article> findWithDetailsById(Long id);
 

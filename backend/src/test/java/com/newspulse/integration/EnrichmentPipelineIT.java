@@ -7,8 +7,12 @@ import com.newspulse.domain.Sentiment;
 import com.newspulse.domain.Topic;
 import com.newspulse.dto.EnrichmentRunResponse;
 import com.newspulse.llm.LlmClient;
+import com.newspulse.llm.LlmClient.BatchArticle;
+import com.newspulse.llm.LlmClient.BatchSummaryResult;
+import com.newspulse.llm.LlmClient.EnrichmentResult;
 import com.newspulse.llm.LlmException;
 import com.newspulse.repository.ArticleEnrichmentRepository;
+import java.util.List;
 import com.newspulse.repository.ArticleRepository;
 import com.newspulse.repository.TopicRepository;
 import com.newspulse.service.EnrichmentService;
@@ -80,17 +84,25 @@ class EnrichmentPipelineIT {
 		@Bean
 		@Primary
 		LlmClient stubLlmClient() {
-			return (title, content) -> {
-				if (title != null && title.startsWith("FAIL")) {
-					throw new LlmException("simulated OpenRouter outage");
+			return new LlmClient() {
+				@Override
+				public EnrichmentResult enrich(String title, String content) {
+					if (title != null && title.startsWith("FAIL")) {
+						throw new LlmException("simulated OpenRouter outage");
+					}
+					return new EnrichmentResult(
+							"Two sentence summary of the story. It is useful for the digest.",
+							Sentiment.POSITIVE,
+							"Positive coverage tone.",
+							"product",
+							"stub"
+					);
 				}
-				return new LlmClient.EnrichmentResult(
-						"Two sentence summary of the story. It is useful for the digest.",
-						Sentiment.POSITIVE,
-						"The article is constructive.",
-						"technical",
-						"stub-model"
-				);
+
+				@Override
+				public BatchSummaryResult summarizeBatch(List<BatchArticle> articles) {
+					return new BatchSummaryResult("Stub headline", "Stub overview.", List.of("stub"), "stub");
+				}
 			};
 		}
 	}

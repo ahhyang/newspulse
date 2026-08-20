@@ -1,6 +1,7 @@
 package com.newspulse.llm;
 
 import com.newspulse.domain.Sentiment;
+import java.util.List;
 
 /**
  * LLM port. OpenRouter is the default adapter; swapping providers is a one-class change.
@@ -9,6 +10,8 @@ public interface LlmClient {
 
 	EnrichmentResult enrich(String title, String content);
 
+	BatchSummaryResult summarizeBatch(List<BatchArticle> articles);
+
 	record EnrichmentResult(
 			String summary,
 			Sentiment sentiment,
@@ -16,4 +19,8 @@ public interface LlmClient {
 			String stanceTag,
 			String model
 	) {}
+
+	record BatchArticle(String title, String sourceName, String snippet, String sentiment) {}
+
+	record BatchSummaryResult(String headline, String overview, List<String> themes, String model) {}
 }

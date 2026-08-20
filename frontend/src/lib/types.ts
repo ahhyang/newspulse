@@ -82,6 +82,15 @@ export type LoginResponse = {
 	expiresInMs: number;
 };
 
+export type BatchSummary = {
+	headline: string;
+	overview: string;
+	themes: string[];
+	articleCount: number;
+	articles: Array<{ id: number; title: string; sourceName: string }>;
+	model: string;
+};
+
 export type PipelineMessage = {
 	message: string;
 	detail?: string;

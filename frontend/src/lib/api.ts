@@ -7,6 +7,7 @@ import type {
 	PageResponse,
 	Stats,
 	Topic,
+	BatchSummary,
 } from "./types";
 
 const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
@@ -64,4 +65,9 @@ export const api = {
 	enrich: () => request<Record<string, unknown>>("/api/enrichment/runs", { method: "POST" }),
 	generateDigest: (date?: string, topicId?: number) =>
 		request<Record<string, unknown>>(`/api/digests/runs${buildQuery({ date, topicId })}`, { method: "POST" }),
+	summarizeBatch: (articleIds: number[]) =>
+		request<BatchSummary>("/api/summaries/batch", {
+			method: "POST",
+			body: JSON.stringify({ articleIds }),
+		}),
 };

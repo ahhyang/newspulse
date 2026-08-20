@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.newspulse.config.AppProperties;
 import com.newspulse.domain.Sentiment;
+import com.newspulse.llm.BatchSummaryParser;
 import com.newspulse.llm.EnrichmentParser;
 import com.newspulse.llm.LlmClient;
 import com.newspulse.llm.LlmException;
@@ -35,6 +36,15 @@ public class OpenRouterLlmClient implements LlmClient {
 			No markdown. No extra keys.
 			""";
 
+	private static final String BATCH_SYSTEM_PROMPT = """
+			You compose a combined AI-industry news briefing from several selected stories.
+			Return ONLY a JSON object with these keys:
+			- headline: one compelling line capturing the shared thread (max 120 chars)
+			- overview: 3-5 sentences synthesizing what matters across the selection; mention tensions or trends
+			- themes: array of 2-5 short theme labels (e.g. "chip supply", "regulation")
+			No markdown. No extra keys.
+			""";
+
 	private final RestClient restClient;
 	private final AppProperties.Llm llm;
 	private final ObjectMapper objectMapper;
@@ -50,15 +60,27 @@ public class OpenRouterLlmClient implements LlmClient {
 		if (llm.apiKey() == null || llm.apiKey().isBlank()) {
 			throw new LlmException("OpenRouter API key is not configured");
 		}
-		String payload = complete(buildUserPrompt(title, content));
-		return parse(payload);
+		String payload = complete(SYSTEM_PROMPT, buildUserPrompt(title, content));
+		return parseEnrichment(payload);
 	}
 
-	private String complete(String userPrompt) {
+	@Override
+	public BatchSummaryResult summarizeBatch(List<BatchArticle> articles) {
+		if (llm.apiKey() == null || llm.apiKey().isBlank()) {
+			throw new LlmException("OpenRouter API key is not configured");
+		}
+		if (articles == null || articles.size() < 2) {
+			throw new LlmException("At least two articles are required for a batch summary");
+		}
+		String payload = complete(BATCH_SYSTEM_PROMPT, buildBatchPrompt(articles));
+		return BatchSummaryParser.parse(payload, llm.model());
+	}
+
+	private String complete(String systemPrompt, String userPrompt) {
 		OpenRouterChatResponse.ChatRequest request = new OpenRouterChatResponse.ChatRequest(
 				llm.model(),
 				List.of(
-						new OpenRouterChatResponse.ChatMessage("system", SYSTEM_PROMPT),
+						new OpenRouterChatResponse.ChatMessage("system", systemPrompt),
 						new OpenRouterChatResponse.ChatMessage("user", userPrompt)
 				),
 				0.2,
@@ -103,7 +125,7 @@ public class OpenRouterLlmClient implements LlmClient {
 		}
 	}
 
-	private EnrichmentResult parse(String rawContent) {
+	private EnrichmentResult parseEnrichment(String rawContent) {
 		try {
 			JsonNode node = objectMapper.readTree(EnrichmentParser.extractJsonObject(rawContent));
 			String summary = text(node, "summary");
@@ -131,6 +153,24 @@ public class OpenRouterLlmClient implements LlmClient {
 			body = body.substring(0, max);
 		}
 		return "Title: %s%n%nArticle:%n%s".formatted(title == null ? "" : title.strip(), body);
+	}
+
+	private String buildBatchPrompt(List<BatchArticle> articles) {
+		StringBuilder builder = new StringBuilder("Selected stories (%d):%n%n".formatted(articles.size()));
+		int index = 1;
+		for (BatchArticle article : articles) {
+			builder.append(index++)
+					.append(". [")
+					.append(article.sourceName())
+					.append(" | ")
+					.append(article.sentiment())
+					.append("] ")
+					.append(article.title())
+					.append("\n")
+					.append(article.snippet())
+					.append("\n\n");
+		}
+		return builder.toString().strip();
 	}
 
 	private static String text(JsonNode node, String field) {

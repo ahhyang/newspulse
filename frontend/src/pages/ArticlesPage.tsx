@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { BatchSummaryPanel } from "../components/BatchSummaryPanel";
 import { ArticleCard } from "../components/ArticleCard";
 import { EmptyState } from "../components/EmptyState";
 import { FilterChips } from "../components/FilterChips";
 import { api } from "../lib/api";
 import { utcDayBounds, utcDaysAgo, utcToday } from "../lib/format";
-import type { PageResponse, Article } from "../lib/types";
+import type { BatchSummary, PageResponse, Article } from "../lib/types";
+
+const MAX_SELECTION = 12;
 
 export function ArticlesPage() {
 	const [params, setParams] = useSearchParams();
@@ -13,6 +16,10 @@ export function ArticlesPage() {
 	const [page, setPage] = useState<PageResponse<Article> | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [searchInput, setSearchInput] = useState(params.get("q") ?? "");
+	const [selectedIds, setSelectedIds] = useState<number[]>([]);
+	const [batchResult, setBatchResult] = useState<BatchSummary | null>(null);
+	const [batchLoading, setBatchLoading] = useState(false);
+	const [batchError, setBatchError] = useState<string | null>(null);
 
 	const sentiment = params.get("sentiment") ?? "";
 	const source = params.get("source") ?? "";
@@ -111,6 +118,51 @@ export function ArticlesPage() {
 		setParams(next);
 	}
 
+	function toggleSelection(id: number) {
+		setSelectedIds((current) => {
+			if (current.includes(id)) {
+				return current.filter((value) => value !== id);
+			}
+			if (current.length >= MAX_SELECTION) {
+				return current;
+			}
+			return [...current, id];
+		});
+	}
+
+	function selectAllOnPage() {
+		if (!page) {
+			return;
+		}
+		setSelectedIds((current) => {
+			const merged = new Set(current);
+			for (const article of page.content) {
+				if (merged.size >= MAX_SELECTION) {
+					break;
+				}
+				merged.add(article.id);
+			}
+			return Array.from(merged);
+		});
+	}
+
+	async function summarizeSelected() {
+		if (selectedIds.length < 2) {
+			return;
+		}
+		setBatchLoading(true);
+		setBatchError(null);
+		setBatchResult(null);
+		try {
+			const result = await api.summarizeBatch(selectedIds);
+			setBatchResult(result);
+		} catch (err) {
+			setBatchError(err instanceof Error ? err.message : "Batch summary failed");
+		} finally {
+			setBatchLoading(false);
+		}
+	}
+
 	return (
 		<div className="space-y-6">
 			<div className="flex flex-wrap items-end justify-between gap-4">
@@ -118,7 +170,7 @@ export function ArticlesPage() {
 					<p className="text-xs uppercase tracking-[0.2em] text-gold">Coverage</p>
 					<h1 className="mt-2 font-serif text-3xl">Articles</h1>
 					<p className="mt-2 text-sm text-mute">
-						{page ? `${page.totalElements} stories` : "Loading…"} · search, filter by source, sentiment, or date
+						{page ? `${page.totalElements} stories` : "Loading…"} · tick 2–12 articles, then summarize them together
 					</p>
 				</div>
 			</div>
@@ -202,10 +254,15 @@ export function ArticlesPage() {
 				<EmptyState title="No matching articles" body="Try another source chip, widen the date range, or clear search." />
 			) : null}
 
-			<ul className="space-y-3">
+			<ul className="space-y-3 pb-24">
 				{page?.content.map((article) => (
 					<li key={article.id}>
-						<ArticleCard article={article} />
+						<ArticleCard
+							article={article}
+							selectable
+							selected={selectedIds.includes(article.id)}
+							onToggle={toggleSelection}
+						/>
 					</li>
 				))}
 			</ul>
@@ -235,6 +292,51 @@ export function ArticlesPage() {
 					</div>
 				</div>
 			) : null}
+
+			{selectedIds.length > 0 ? (
+				<div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink/95 px-4 py-3 backdrop-blur">
+					<div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+						<p className="text-sm text-paper">
+							{selectedIds.length} selected {selectedIds.length < 2 ? "(pick at least 2)" : ""}
+							{selectedIds.length >= MAX_SELECTION ? ` · max ${MAX_SELECTION}` : ""}
+						</p>
+						<div className="flex flex-wrap gap-2">
+							<button
+								type="button"
+								className="rounded-md border border-line px-3 py-1.5 text-sm text-mute hover:text-paper"
+								onClick={selectAllOnPage}
+							>
+								Select page
+							</button>
+							<button
+								type="button"
+								className="rounded-md border border-line px-3 py-1.5 text-sm text-mute hover:text-paper"
+								onClick={() => setSelectedIds([])}
+							>
+								Clear
+							</button>
+							<button
+								type="button"
+								disabled={selectedIds.length < 2 || batchLoading}
+								className="rounded-md border border-gold/40 bg-gold/15 px-4 py-1.5 text-sm text-gold hover:bg-gold/25 disabled:opacity-40"
+								onClick={() => void summarizeSelected()}
+							>
+								{batchLoading ? "Summarizing…" : "Summarize selected"}
+							</button>
+						</div>
+					</div>
+				</div>
+			) : null}
+
+			<BatchSummaryPanel
+				result={batchResult}
+				loading={batchLoading}
+				error={batchError}
+				onClose={() => {
+					setBatchResult(null);
+					setBatchError(null);
+				}}
+			/>
 		</div>
 	);
 }
