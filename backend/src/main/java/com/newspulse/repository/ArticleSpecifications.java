@@ -19,6 +19,7 @@ public final class ArticleSpecifications {
 			String sourceName,
 			Long clusterId,
 			Sentiment sentiment,
+			String q,
 			Instant from,
 			Instant to
 	) {
@@ -50,6 +51,9 @@ public final class ArticleSpecifications {
 			}
 			if (sentiment != null) {
 				predicates.add(cb.equal(root.join("enrichment", JoinType.INNER).get("sentiment"), sentiment));
+			}
+			if (q != null && !q.isBlank()) {
+				predicates.add(cb.like(cb.lower(root.get("title")), "%" + q.strip().toLowerCase() + "%"));
 			}
 			return cb.and(predicates.toArray(Predicate[]::new));
 		};

@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
 import { NavLink, Outlet, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import type { Topic } from "../lib/types";
 
@@ -40,6 +40,9 @@ export function Layout() {
 					</NavLink>
 					<nav className="flex items-center gap-1">
 						<NavLink to={{ pathname: "/", search: params.toString() }} className={navClass} end>
+							Overview
+						</NavLink>
+						<NavLink to={{ pathname: "/digest", search: params.toString() }} className={navClass}>
 							Digest
 						</NavLink>
 						<NavLink to={{ pathname: "/articles", search: params.toString() }} className={navClass}>
@@ -66,11 +69,7 @@ export function Layout() {
 							</select>
 						</label>
 						{signedIn ? (
-							<button
-								type="button"
-								onClick={signOut}
-								className="text-xs text-mute hover:text-paper"
-							>
+							<button type="button" onClick={signOut} className="text-xs text-mute hover:text-paper">
 								Sign out
 							</button>
 						) : null}
@@ -80,6 +79,9 @@ export function Layout() {
 			<main className="mx-auto max-w-6xl px-4 py-8">
 				<Outlet />
 			</main>
+			<footer className="border-t border-line/60 py-6 text-center text-xs text-mute">
+				Auto-ingest hourly · AI enrichment every ~2 min · daily digest at 00:05 UTC · GNews + Hacker News
+			</footer>
 		</div>
 	);
 }

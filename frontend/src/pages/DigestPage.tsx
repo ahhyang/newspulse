@@ -2,8 +2,9 @@ import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { EmptyState } from "../components/EmptyState";
 import { SentimentBadge } from "../components/SentimentBadge";
+import { useAutoRefresh } from "../hooks/useAutoRefresh";
 import { ApiRequestError, api } from "../lib/api";
-import { formatDay, formatPct, shiftDay } from "../lib/format";
+import { formatDay, formatInstant, formatPct, shiftDay } from "../lib/format";
 import type { Digest, Stats } from "../lib/types";
 
 const SentimentChart = lazy(() => import("../components/SentimentChart"));
@@ -12,6 +13,7 @@ export function DigestPage() {
 	const [params, setParams] = useSearchParams();
 	const topicId = params.get("topicId") ? Number(params.get("topicId")) : undefined;
 	const date = params.get("date");
+	const { tick, refreshing, refresh } = useAutoRefresh(300_000);
 	const [digest, setDigest] = useState<Digest | null>(null);
 	const [stats, setStats] = useState<Stats | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export function DigestPage() {
 		return () => {
 			cancelled = true;
 		};
-	}, [date, topicId]);
+	}, [date, topicId, tick]);
 
 	const mix = useMemo(() => {
 		if (!digest) {
@@ -81,7 +83,7 @@ export function DigestPage() {
 		return (
 			<EmptyState
 				title="No briefing yet"
-				body="Ingest and enrich articles from Admin, then generate a digest. GET /api/digests/latest returns 404 until the first run."
+				body="News is ingested hourly from GNews and Hacker News, summarized automatically, and compiled into a daily digest. Check back soon or run the pipeline from Admin."
 			/>
 		);
 	}
@@ -93,9 +95,18 @@ export function DigestPage() {
 					<div>
 						<p className="text-xs uppercase tracking-[0.2em] text-gold">Daily briefing</p>
 						<h1 className="mt-2 max-w-3xl font-serif text-3xl leading-tight text-paper">{digest.headline}</h1>
-						<p className="mt-2 text-sm text-mute">{formatDay(digest.digestDate)} · {digest.topicName}</p>
+						<p className="mt-2 text-sm text-mute">
+							{formatDay(digest.digestDate)} · {digest.topicName} · generated {formatInstant(digest.generatedAt)}
+						</p>
 					</div>
-					<div className="flex items-center gap-2">
+					<div className="flex flex-wrap items-center gap-2">
+						<button
+							type="button"
+							className="rounded-md border border-line px-3 py-1 text-sm text-mute hover:text-paper"
+							onClick={refresh}
+						>
+							{refreshing ? "Refreshing…" : "Refresh"}
+						</button>
 						<button
 							type="button"
 							className="rounded-md border border-line px-3 py-1 text-sm text-mute hover:text-paper"
@@ -156,7 +167,7 @@ export function DigestPage() {
 										className="text-gold hover:underline"
 										to={`/articles?clusterId=${item.clusterId}${topicId ? `&topicId=${topicId}` : ""}`}
 									>
-										Open source links
+										See all coverage
 									</Link>
 								) : null}
 							</div>

@@ -8,7 +8,7 @@ Interactive docs: [http://localhost:8080/swagger-ui.html](http://localhost:8080/
 | --- | --- | --- |
 | POST | `/api/auth/login` | `{ "username", "password" }` → JWT |
 | GET | `/api/topics` | Seeded with **AI Industry** |
-| GET | `/api/articles` | Filters: `topicId`, `source`, `sourceName`, `clusterId`, `sentiment`, `from`, `to`, paging |
+| GET | `/api/articles` | Filters: `topicId`, `source`, `sourceName`, `clusterId`, `sentiment`, `q` (title search), `from`, `to`, paging |
 | GET | `/api/digests/latest` | Most recent digest. Optional `topicId` (defaults to first active topic for date lookup on `/{date}`) |
 | GET | `/api/digests/{date}` | ISO date in UTC. Optional `topicId` |
 | GET | `/api/stats` | Daily sentiment series. Optional `topicId`, `from`, `to` (default: last 7 UTC days through today) |

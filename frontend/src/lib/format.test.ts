@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildQuery, formatPct, shiftDay } from "./format";
+import { buildQuery, formatPct, relativeTime, shiftDay, utcDaysAgo, utcToday } from "./format";
 
 describe("formatPct", () => {
 	it("renders integers without decimals", () => {
@@ -22,5 +22,19 @@ describe("shiftDay", () => {
 describe("buildQuery", () => {
 	it("omits empty values", () => {
 		expect(buildQuery({ topicId: 1, sourceName: "", sentiment: undefined })).toBe("?topicId=1");
+	});
+});
+
+describe("date helpers", () => {
+	it("returns utc iso dates", () => {
+		expect(utcToday()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+		expect(utcDaysAgo(7)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+	});
+});
+
+describe("relativeTime", () => {
+	it("formats recent timestamps", () => {
+		const fiveMinutesAgo = new Date(Date.now() - 5 * 60_000).toISOString();
+		expect(relativeTime(fiveMinutesAgo)).toBe("5m ago");
 	});
 });

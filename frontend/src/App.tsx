@@ -5,6 +5,7 @@ import { AdminPage } from "./pages/AdminPage";
 import { ArticlePage } from "./pages/ArticlePage";
 import { ArticlesPage } from "./pages/ArticlesPage";
 import { DigestPage } from "./pages/DigestPage";
+import { OverviewPage } from "./pages/OverviewPage";
 
 export default function App() {
 	return (
@@ -12,7 +13,8 @@ export default function App() {
 			<BrowserRouter>
 				<Routes>
 					<Route element={<Layout />}>
-						<Route path="/" element={<DigestPage />} />
+						<Route path="/" element={<OverviewPage />} />
+						<Route path="/digest" element={<DigestPage />} />
 						<Route path="/articles" element={<ArticlesPage />} />
 						<Route path="/articles/:id" element={<ArticlePage />} />
 						<Route path="/admin" element={<AdminPage />} />
