@@ -11,7 +11,8 @@ public record AppProperties(
 		Enrichment enrichment,
 		Digest digest,
 		Llm llm,
-		Gnews gnews
+		Gnews gnews,
+		HackerNews hackernews
 ) {
 	public record Jwt(String secret, long expirationMs) {}
 
@@ -42,6 +43,12 @@ public record AppProperties(
 			String apiKey,
 			String baseUrl,
 			String lang,
+			int maxResults
+	) {}
+
+	public record HackerNews(
+			boolean enabled,
+			String baseUrl,
 			int maxResults
 	) {}
 }

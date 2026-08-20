@@ -13,7 +13,7 @@ This project is a portfolio piece for a Java/Spring Boot role. Cursor (Composer)
 ## Decisions I made myself
 
 - Domain model: topics → articles → enrichments → clusters → digests (with URL-hash uniqueness, not title matching).
-- `NewsSource` / `LlmClient` ports so GNews and OpenRouter can be swapped without touching digest logic.
+- `NewsSource` / `LlmClient` ports so GNews, Hacker News, and OpenRouter can be swapped without touching digest logic.
 - PostgreSQL + Neon instead of MySQL, because the live database target is Neon (Postgres). Local Compose uses the same dialect.
 - JWT for admin writes, public GETs for the dashboard — a news briefing should be readable without a login wall.
 - Secrets only in `.env` / host env vars. Keys that were ever pasted into chat should be rotated.

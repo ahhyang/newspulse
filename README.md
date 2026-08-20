@@ -20,6 +20,7 @@ flowchart LR
   Nginx --> API[Spring Boot API]
   API --> PG[(PostgreSQL / Neon)]
   API --> GNews[GNews]
+  API --> HN[Hacker News]
   API --> OpenRouter[OpenRouter / Claude]
 ```
 
@@ -49,7 +50,7 @@ More detail: [docs/architecture.md](docs/architecture.md)
 | Persistence | Spring Data JPA + Flyway | Versioned schema; Hibernate `ddl-auto=validate` only |
 | Database | PostgreSQL 16 locally, Neon in prod | Neon is Postgres. Same dialect in Compose and cloud. |
 | Auth | JWT (admin writes) | Public read APIs for the dashboard |
-| News | GNews behind `NewsSource` | First live source; RSS can be added without touching persist/digest logic |
+| News | GNews + Hacker News behind `NewsSource` | Extra adapters (RSS, etc.) can be added without touching persist/digest logic |
 | LLM | OpenRouter (`LlmClient`) | Claude (or other) models without locking the code to one vendor SDK |
 | Frontend | React + TypeScript + Vite + Tailwind | REST-only SPA; deploy to Vercel |
 | Packaging | Docker Compose | `db` + `api` + `frontend` (nginx reverse-proxies `/api`) |
@@ -155,7 +156,7 @@ Keys live in `.env` (gitignored). `.env.example` is the template. If a key was e
 - Redis cache for digest payloads
 - Durable queue (Kafka or at least an outbox) for the ingest → enrich pipeline
 - SMTP daily digest
-- Additional `NewsSource` adapters (RSS is the obvious next source)
+- Additional `NewsSource` adapters (RSS remains the obvious next source)
 
 ## How I used AI tools
 
@@ -171,7 +172,7 @@ This is a portfolio piece for a Java / Spring Boot role. Cursor was a pair-progr
 **Decisions I made myself**
 
 - Domain: topics → articles → enrichments → clusters → digests, with **URL-hash** uniqueness (not title matching).
-- `NewsSource` / `LlmClient` ports so GNews and OpenRouter can be swapped without touching digest logic.
+- `NewsSource` / `LlmClient` ports so GNews, Hacker News, and OpenRouter can be swapped without touching digest logic.
 - PostgreSQL + Neon instead of MySQL, because the live database target is Neon.
 - JWT for admin writes; public GETs so a briefing is readable without a login wall.
 - Vercel for the SPA only. The API stays on a JVM host; that constraint is documented rather than papered over.

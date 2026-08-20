@@ -14,7 +14,7 @@ Interactive docs: [http://localhost:8080/swagger-ui.html](http://localhost:8080/
 | GET | `/api/stats` | Daily sentiment series. Optional `topicId`, `from`, `to` (default: last 7 UTC days through today) |
 | GET | `/actuator/health` | Liveness/readiness |
 
-Admin ingest: `POST /api/ingestion/runs` with a Bearer JWT. The scheduler also runs on `app.ingestion.interval-ms` (default 1 hour) and never crashes the process on GNews errors.
+Admin ingest: `POST /api/ingestion/runs` with a Bearer JWT. The scheduler also runs on `app.ingestion.interval-ms` (default 1 hour) and never crashes the process on GNews or Hacker News errors.
 
 ## Admin (Bearer JWT)
 
@@ -22,7 +22,7 @@ Admin ingest: `POST /api/ingestion/runs` with a Bearer JWT. The scheduler also r
 | --- | --- | --- |
 | POST | `/api/topics` | Create a tracked topic |
 | PATCH | `/api/topics/{id}` | Update a topic |
-| POST | `/api/ingestion/runs` | Pull GNews now |
+| POST | `/api/ingestion/runs` | Pull GNews + Hacker News now |
 | POST | `/api/enrichment/runs` | Summarize + classify unenriched articles |
 | POST | `/api/digests/runs` | Generate/regenerate digests for a UTC date (`date`, optional `topicId`) |
 

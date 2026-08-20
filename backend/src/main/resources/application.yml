@@ -80,3 +80,7 @@ app:
     base-url: ${GNEWS_BASE_URL:https://gnews.io/api/v4}
     lang: ${GNEWS_LANG:en}
     max-results: ${GNEWS_MAX_RESULTS:10}
+  hackernews:
+    enabled: ${HN_ENABLED:true}
+    base-url: ${HN_BASE_URL:https://hn.algolia.com/api/v1}
+    max-results: ${HN_MAX_RESULTS:20}

@@ -23,6 +23,7 @@ flowchart LR
 
   subgraph external [External]
     GNews[GNews API]
+    HN[Hacker News / Algolia]
     OpenRouter[OpenRouter / Claude]
   end
 
@@ -34,6 +35,7 @@ flowchart LR
   S --> Ingest
   S --> Llm
   Ingest --> GNews
+  Ingest --> HN
   Llm --> OpenRouter
 ```
 
@@ -63,7 +65,7 @@ A clean machine needs Docker Desktop and a filled `.env`. `docker compose up --b
 
 ## Processing pipeline
 
-1. **Ingest** — `GnewsNewsSource` searches each active topic; URL SHA-256 after normalization is the uniqueness key. HTTP stays outside the DB transaction.
+1. **Ingest** — each `NewsSource` (GNews + Hacker News Algolia) searches every active topic; URL SHA-256 after normalization is the uniqueness key. HTTP stays outside the DB transaction.
 2. **Enrich** — `OpenRouterLlmClient` writes summary, sentiment, justification, stance. Per-article failures are counted and skipped.
 3. **Cluster** — unclustered articles are union-find grouped by identical `contentHash` or title Jaccard ≥ `app.digest.cluster-similarity`.
 4. **Digest** — UTC calendar day, enriched articles only, ranked by distinct `sourceName` then recency. Scheduler writes yesterday at 00:05 UTC.

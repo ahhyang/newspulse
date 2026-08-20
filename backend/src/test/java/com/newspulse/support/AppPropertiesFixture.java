@@ -29,7 +29,8 @@ public final class AppPropertiesFixture {
 						500,
 						4000
 				),
-				new AppProperties.Gnews(true, "gnews-key", "https://gnews.io/api/v4", "en", 10)
+				new AppProperties.Gnews(true, "gnews-key", "https://gnews.io/api/v4", "en", 10),
+				new AppProperties.HackerNews(true, "https://hn.algolia.com/api/v1", 20)
 		);
 	}
 }

@@ -39,3 +39,7 @@ app:
     base-url: https://gnews.io/api/v4
     lang: en
     max-results: 10
+  hackernews:
+    enabled: false
+    base-url: https://hn.algolia.com/api/v1
+    max-results: 20

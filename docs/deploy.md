@@ -29,6 +29,8 @@ NewsPulse splits across three hosts:
 | `APP_ADMIN_USERNAME` | `admin` |
 | `APP_ADMIN_PASSWORD` | strong password |
 | `GNEWS_API_KEY` | from [gnews.io](https://gnews.io) |
+| `HN_ENABLED` | `true` (Algolia search, no API key) |
+| `HN_MAX_RESULTS` | `20` |
 | `OPENROUTER_API_KEY` | from [openrouter.ai](https://openrouter.ai) |
 | `CORS_ALLOWED_ORIGINS` | your Vercel URL, e.g. `https://newspulse.vercel.app` |
 
