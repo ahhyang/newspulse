@@ -109,7 +109,10 @@ export function AdminPage() {
 			</div>
 			<section className="rounded-2xl border border-line bg-panel p-5">
 				<h2 className="font-serif text-xl">Pipeline</h2>
-				<p className="mt-1 text-sm text-mute">Runs the same endpoints as curl. Enrichment also kicks digest generation when it succeeds.</p>
+				<p className="mt-1 text-sm text-mute">
+					News still auto-ingests hourly. <strong className="text-paper">AI only runs when you click</strong> —
+					Enrich pending (summarize new articles) or use Articles → Summarize selected.
+				</p>
 				<div className="mt-4 flex flex-wrap gap-2">
 					<button
 						type="button"
@@ -122,10 +125,10 @@ export function AdminPage() {
 					<button
 						type="button"
 						disabled={busy}
-						className="rounded-md border border-line px-3 py-2 text-sm hover:border-gold"
+						className="rounded-md border border-gold/40 bg-gold/15 px-3 py-2 text-sm text-gold hover:bg-gold/25"
 						onClick={() => void run("Enrichment", () => api.enrich())}
 					>
-						Enrich pending
+						Enrich pending (AI)
 					</button>
 					<button
 						type="button"

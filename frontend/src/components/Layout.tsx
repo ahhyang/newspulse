@@ -80,7 +80,7 @@ export function Layout() {
 				<Outlet />
 			</main>
 			<footer className="border-t border-line/60 py-6 text-center text-xs text-mute">
-				Auto-ingest hourly · AI enrichment every ~2 min · daily digest at 00:05 UTC · GNews + Hacker News
+				Auto-ingest hourly · AI only on click (Admin enrich / Articles summarize) · digest 00:05 UTC · GNews + HN
 			</footer>
 		</div>
 	);

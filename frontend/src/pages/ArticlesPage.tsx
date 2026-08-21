@@ -170,7 +170,8 @@ export function ArticlesPage() {
 					<p className="text-xs uppercase tracking-[0.2em] text-gold">Coverage</p>
 					<h1 className="mt-2 font-serif text-3xl">Articles</h1>
 					<p className="mt-2 text-sm text-mute">
-						{page ? `${page.totalElements} stories` : "Loading…"} · tick 2–12 articles, then summarize them together
+						{page ? `${page.totalElements} stories` : "Loading…"} · AI is click-only: tick 2–12 articles →
+						Summarize selected, or Admin → Enrich pending
 					</p>
 				</div>
 			</div>

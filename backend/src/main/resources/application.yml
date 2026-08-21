@@ -55,8 +55,8 @@ app:
     initial-delay-ms: ${INGESTION_INITIAL_DELAY_MS:20000}
     lookback-hours: ${INGESTION_LOOKBACK_HOURS:24}
   enrichment:
-    enabled: ${ENRICHMENT_ENABLED:true}
-    interval-ms: ${ENRICHMENT_INTERVAL_MS:120000}
+    enabled: ${ENRICHMENT_ENABLED:false}
+    interval-ms: ${ENRICHMENT_INTERVAL_MS:1800000}
     initial-delay-ms: ${ENRICHMENT_INITIAL_DELAY_MS:40000}
     batch-size: ${ENRICHMENT_BATCH_SIZE:8}
   digest:
