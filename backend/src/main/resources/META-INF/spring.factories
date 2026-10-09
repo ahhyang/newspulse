@@ -1,0 +1,3 @@
+org.springframework.boot.EnvironmentPostProcessor=\
+com.newspulse.config.DotEnvEnvironmentPostProcessor,\
+com.newspulse.config.DatabaseUrlEnvironmentPostProcessor
